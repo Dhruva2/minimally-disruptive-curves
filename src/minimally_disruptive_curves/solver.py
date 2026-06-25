@@ -122,7 +122,6 @@ def _mdc_vector_field(t: float, y: jnp.ndarray, args: Tuple) -> jnp.ndarray:
 
     return jnp.concatenate([dtheta, dlam])
 
-
 def make_safety_event(sys: MDCProblem, tol: float = 1e-4):
     """Terminates if cost C approaches or exceeds momentum H."""
     def cond_fn(t, y, args, **kwargs):
@@ -130,21 +129,27 @@ def make_safety_event(sys: MDCProblem, tol: float = 1e-4):
         theta = y[:N]
         theta_phys = sys.chain.forward(theta)
         C = sys.cost_fn(theta_phys)
-        return C >= (sys.momentum - tol)
-    
+        return (sys.momentum - tol) - C
+
     return diffrax.Event(cond_fn=cond_fn)
 
 def make_bounds_event(lbs: jnp.ndarray, ubs: jnp.ndarray):
     """Terminates if parameters fall outside lower/upper bounds."""
     lbs = jnp.asarray(lbs)
     ubs = jnp.asarray(ubs)
-    
+
     def cond_fn(t, y, args, **kwargs):
         sys, N, _ = args
         theta = y[:N]
-        return jnp.any((theta < lbs) | (theta > ubs))
-    
+        dist_to_lb = theta - lbs
+        dist_to_ub = ubs - theta
+        return jnp.min(jnp.concatenate([dist_to_lb, dist_to_ub]))
+
     return diffrax.Event(cond_fn=cond_fn)
+
+
+
+
 
 
 def _solve_single_direction(sys: MDCProblem, u0: jnp.ndarray, t1: float, stabilizer_strength: float, events=None) -> Optional[diffrax.Solution]:

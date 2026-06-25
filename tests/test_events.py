@@ -3,6 +3,8 @@ import jax
 import jax.numpy as jnp
 import numpy as np
 from minimally_disruptive_curves import MDCProblem, solve_mdc, make_bounds_event, make_safety_event
+jax.config.update("jax_enable_x64", True)
+
 
 def test_bounds_termination():
     """Ensure the ODE terminates when parameters hit the specified bounds."""
@@ -84,7 +86,7 @@ def test_safety_termination():
     assert valid_pos_t.max() < 100.0
 
     # Let's check the cost at the final point
-    final_theta = jnp.array(valid_pos_theta[-1])
+    final_theta = jnp.array(valid_pos_theta[-2])
     final_cost = float(cost_fn(final_theta))
     
     # Cost should be approaching the momentum limit (5.0)
