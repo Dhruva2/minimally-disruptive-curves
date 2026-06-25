@@ -30,3 +30,9 @@ dev = [
     "matplotlib",
     "marimo>=0.23.10",
 ]
+
+[project.urls]
+Homepage = "https://github.com/Dhruva2/minimally-disruptive-curves"
+Repository = "https://github.com/Dhruva2/minimally-disruptive-curves"
+Issues = "https://github.com/Dhruva2/minimally-disruptive-curves/issues"
+
